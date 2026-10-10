@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  php:
+    name: Testes PHP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite, mbstring
+      - run: composer install --no-interaction --no-progress
+      - run: vendor/bin/phpunit
+
+  docker:
+    name: Docker Compose (MySQL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait
+        env:
+          ADMIN_PASSWORD: senha-do-ci
+      - run: docker compose exec -T app php bin/setup.php
+      - name: Dados de exemplo gravados no MySQL
+        run: docker compose exec -T db sh -c 'mysql -uconfeitaria -p"$MYSQL_PASSWORD" confeitaria -N -e "SELECT COUNT(*) FROM sales"' | grep -qv '^0$'
+      - name: Sistema responde com os dados do MySQL
+        run: test "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/login)" = "200"
+      - name: Tudo exige login
+        run: test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)" = "303"
+      - if: failure()
+        run: docker compose logs

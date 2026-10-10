@@ -1,0 +1,26 @@
+{
+    "name": "wagnerglongo/gestao-confeitaria",
+    "description": "Gestão de confeitaria: receitas com sub-receitas, custo e preço sugerido, produção, estoque, vendas e fluxo de caixa.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5 || ^11.0"
+    },
+    "autoload": {
+        "psr-4": { "Confeitaria\\": "src/" },
+        "files": ["src/helpers.php"]
+    },
+    "autoload-dev": {
+        "psr-4": { "Confeitaria\\Tests\\": "tests/php/" }
+    },
+    "scripts": {
+        "setup": "php bin/setup.php",
+        "serve": "php -S localhost:8000 -t public public/index.php",
+        "test": "phpunit"
+    }
+}

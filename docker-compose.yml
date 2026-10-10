@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DB_DSN: "mysql:host=db;dbname=confeitaria;charset=utf8mb4"
+      DB_USER: confeitaria
+      DB_PASSWORD: ${DB_PASSWORD:-troque-esta-senha}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@exemplo.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: confeitaria
+      MYSQL_USER: confeitaria
+      MYSQL_PASSWORD: ${DB_PASSWORD:-troque-esta-senha}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uconfeitaria", "-p${DB_PASSWORD:-troque-esta-senha}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  mysql:

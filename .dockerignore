@@ -1,0 +1,6 @@
+vendor/
+.git/
+*.sqlite
+docs/
+tests/
+.env
